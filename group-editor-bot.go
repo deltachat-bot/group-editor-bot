@@ -101,8 +101,13 @@ func onNewMsg(bot *deltachat.Bot, accId deltachat.AccountId, msgId deltachat.Msg
 }
 
 func sendPad(rpc *deltachat.Rpc, accId deltachat.AccountId, chatId deltachat.ChatId, command string) {
-	description := command[5:] // bot adds text after /pad as description to the editor.xdc message
 	editor_path := "editor.xdc"
+	var description string
+	if len(command) > 4 {
+		description = command[5:] // bot adds text after /pad as description to the editor.xdc message
+	} else {
+		description = ""
+	}
 	_, err := rpc.SendMsg(accId, chatId, deltachat.MsgData{Text: description, File: editor_path})
 	if err != nil {
 		cli.GetLogger(accId).With("chat", chatId).Error(err)
