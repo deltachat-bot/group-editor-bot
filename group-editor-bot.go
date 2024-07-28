@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+    "time"
 	"path/filepath"
 	"strings"
 
@@ -81,7 +82,7 @@ func onNewMsg(bot *deltachat.Bot, accId deltachat.AccountId, msgId deltachat.Msg
 					logger.Error(err)
 				}
 			}
-		case "/pad":
+		case "/editor":
 			sendPad(bot.Rpc, accId, msg.ChatId, msg.Text)
 			return
 		case "/help":
@@ -102,8 +103,8 @@ func onNewMsg(bot *deltachat.Bot, accId deltachat.AccountId, msgId deltachat.Msg
 func sendPad(rpc *deltachat.Rpc, accId deltachat.AccountId, chatId deltachat.ChatId, command string) {
 	editor_path := "editor.xdc"
 	var description string
-	if len(command) > 4 {
-		description = command[5:] // bot adds text after /pad as description to the editor.xdc message
+	if len(command) > 7 {
+		description = command[8:] // bot adds text after /editor as description to the editor.xdc message
 	} else {
 		description = ""
 	}
@@ -135,12 +136,13 @@ func resendPads(rpc *deltachat.Rpc, accId deltachat.AccountId, chatId deltachat.
 func sendHelp(rpc *deltachat.Rpc, accId deltachat.AccountId, chatId deltachat.ChatId) {
 	text := "I am a bot that manages editors in groups.\n\n"
 	text += "To create a new shared editor for the group, you can write:\n\n"
-	text += "/pad Shopping List for Friday's Example Party\n\n"
+	text += "/editor Shopping List for Friday's Example Party\n\n"
 	text += "I will send an editor to the group, which anyone can edit; and if new members are added, they will see it, too."
 	msgId, err := rpc.SendMsg(accId, chatId, deltachat.MsgData{Text: text})
 	if err != nil {
 		cli.GetLogger(accId).With("chat", chatId).Error(err)
 	}
+    time.Sleep(10 * time.Second)     // sleep for 10 seconds, so the message has a chance to be sent
 	err = rpc.DeleteMessages(accId, []deltachat.MsgId{msgId})
 	if err != nil {
 		cli.Logger.Error(err)

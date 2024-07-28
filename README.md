@@ -1,6 +1,6 @@
 # Group Editor Bot
 
-Small bot that manages pads for a group,
+Small bot that manages editors for a group,
 and resends it when new people join.
 
 It can also generate invitation QRs for your private Delta Chat groups. The bot is always online
@@ -45,7 +45,7 @@ Run `group-editor-bot --help` to see all available options.
 Once the bot is running:
 
 1. Add the bot address to some group in Delta Chat.
-2. Send `/pad` to the group.
+2. Send `/editor` to the group.
 3. The bot will post an editor to the group
 4. When new people are added to the group,
    they will already see the editor.
