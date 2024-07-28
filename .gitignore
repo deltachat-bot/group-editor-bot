@@ -2,4 +2,5 @@
 dist/
 coverage-percent.out
 coverage.out
+group-editor-bot
 .idea/*

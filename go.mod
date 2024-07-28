@@ -1,4 +1,4 @@
-module github.com/deltachat-bot/invitebot
+module github.com/deltachat-bot/group-editor-bot
 
 go 1.21
 

@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var cli = botcli.New("invitebot")
+var cli = botcli.New("group-editor-bot")
 
 func onBotInit(cli *botcli.BotCli, bot *deltachat.Bot, cmd *cobra.Command, args []string) {
 	bot.OnNewMsg(onNewMsg)
