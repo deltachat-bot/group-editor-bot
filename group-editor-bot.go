@@ -27,11 +27,11 @@ func onBotInit(cli *botcli.BotCli, bot *deltachat.Bot, cmd *cobra.Command, args 
 			cli.Logger.Error(err)
 		}
 		if name.UnwrapOr("") == "" {
-			err = bot.Rpc.SetConfig(accId, "displayname", option.Some("InviteBot"))
+			err = bot.Rpc.SetConfig(accId, "displayname", option.Some("Group Editor Bot"))
 			if err != nil {
 				cli.Logger.Error(err)
 			}
-			status := "I am a bot that helps you invite friends to your private groups, send me /help for more info"
+			status := "I am a bot that helps managing editors in groups, send me /help for more info"
 			err = bot.Rpc.SetConfig(accId, "selfstatus", option.Some(status))
 			if err != nil {
 				cli.Logger.Error(err)
