@@ -137,10 +137,15 @@ func sendHelp(rpc *deltachat.Rpc, accId deltachat.AccountId, chatId deltachat.Ch
 	text += "To create a new shared editor for the group, you can write:\n\n"
 	text += "/pad Shopping List for Friday's Example Party\n\n"
 	text += "I will send an editor to the group, which anyone can edit; and if new members are added, they will see it, too."
-	_, err := rpc.SendMsg(accId, chatId, deltachat.MsgData{Text: text})
+	msgId, err := rpc.SendMsg(accId, chatId, deltachat.MsgData{Text: text})
 	if err != nil {
 		cli.GetLogger(accId).With("chat", chatId).Error(err)
 	}
+	err = rpc.DeleteMessages(accId, []deltachat.MsgId{msgId})
+	if err != nil {
+		cli.Logger.Error(err)
+	}
+
 }
 
 func sendInviteQr(rpc *deltachat.Rpc, accId deltachat.AccountId, chatId deltachat.ChatId) {
