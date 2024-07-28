@@ -3,6 +3,8 @@
 Small bot that manages editors for a group,
 and resends it when new people join.
 
+The flagship instance is: <groupedit@nine.testrun.org>
+
 It can also generate invitation QRs for your private Delta Chat groups. The bot is always online
 and can add people to groups in "real time" while if you use your own invitation QRs, others will not be able
 to join until you are online.
