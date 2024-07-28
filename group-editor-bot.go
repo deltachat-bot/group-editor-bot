@@ -83,6 +83,7 @@ func onNewMsg(bot *deltachat.Bot, accId deltachat.AccountId, msgId deltachat.Msg
 			}
 		case "/pad":
 			sendPad(bot.Rpc, accId, msg.ChatId, msg.Text)
+			return
 		case "/help":
 			sendHelp(bot.Rpc, accId, msg.ChatId)
 		default:
@@ -92,11 +93,9 @@ func onNewMsg(bot *deltachat.Bot, accId deltachat.AccountId, msgId deltachat.Msg
 		}
 	}
 
-	if msg.FromId > deltachat.ContactLastSpecial {
-		err = bot.Rpc.DeleteMessages(accId, []deltachat.MsgId{msg.Id})
-		if err != nil {
-			logger.Error(err)
-		}
+	err = bot.Rpc.DeleteMessages(accId, []deltachat.MsgId{msg.Id})
+	if err != nil {
+		logger.Error(err)
 	}
 }
 
