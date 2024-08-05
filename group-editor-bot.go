@@ -1,10 +1,11 @@
 package main
 
 import (
+	"math/rand"
 	"os"
-    "time"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/deltachat-bot/deltabot-cli-go/botcli"
 	"github.com/deltachat/deltachat-rpc-client-go/deltachat"
@@ -127,8 +128,11 @@ func resendPads(rpc *deltachat.Rpc, accId deltachat.AccountId, chatId deltachat.
 			}
 		}
 		err := rpc.ResendMessages(accId, toResend)
-		if err != nil {
-			cli.Logger.Error("Resending messages failed.")
+		for err != nil {
+			cli.Logger.Error("Resending messages failed, retrying.")
+			r := rand.Intn(10)
+			time.Sleep(time.Duration(r) * time.Microsecond)
+			err = rpc.ResendMessages(accId, toResend)
 		}
 	}
 }
@@ -142,12 +146,11 @@ func sendHelp(rpc *deltachat.Rpc, accId deltachat.AccountId, chatId deltachat.Ch
 	if err != nil {
 		cli.GetLogger(accId).With("chat", chatId).Error(err)
 	}
-    time.Sleep(10 * time.Second)     // sleep for 10 seconds, so the message has a chance to be sent
+	time.Sleep(10 * time.Second) // sleep for 10 seconds, so the message has a chance to be sent
 	err = rpc.DeleteMessages(accId, []deltachat.MsgId{msgId})
 	if err != nil {
 		cli.Logger.Error(err)
 	}
-
 }
 
 func sendInviteQr(rpc *deltachat.Rpc, accId deltachat.AccountId, chatId deltachat.ChatId) {
