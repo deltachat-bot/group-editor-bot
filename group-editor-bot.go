@@ -139,16 +139,18 @@ func resendPads(rpc *deltachat.Rpc, accId deltachat.AccountId, chatId deltachat.
 				toResend = append(toResend, id)
 			}
 		}
-		err := rpc.ResendMessages(accId, toResend)
-		for err != nil {
-			var msgIdsStrings []string
-			for i := range toResend {
-				msgIdsStrings = append(msgIdsStrings, strconv.FormatUint(uint64(toResend[i]), 10))
+		if toResend != nil {
+			err := rpc.ResendMessages(accId, toResend)
+			for err != nil {
+				var msgIdsStrings []string
+				for i := range toResend {
+					msgIdsStrings = append(msgIdsStrings, strconv.FormatUint(uint64(toResend[i]), 10))
+				}
+				cli.Logger.Error("Resending messages " + strings.Join(msgIdsStrings, ",") + " failed with error: '" + err.Error() + "'. Retrying.")
+				r := rand.Intn(10)
+				time.Sleep(time.Duration(r) * time.Second)
+				err = rpc.ResendMessages(accId, toResend)
 			}
-			cli.Logger.Error("Resending messages " + strings.Join(msgIdsStrings, ",") + " failed with error: '" + err.Error() + "'. Retrying.")
-			r := rand.Intn(10)
-			time.Sleep(time.Duration(r) * time.Second)
-			err = rpc.ResendMessages(accId, toResend)
 		}
 	}
 }
