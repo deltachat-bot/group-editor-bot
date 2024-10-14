@@ -96,9 +96,14 @@ func onNewMsg(bot *deltachat.Bot, accId deltachat.AccountId, msgId deltachat.Msg
 		}
 	}
 
-	err = bot.Rpc.DeleteMessages(accId, []deltachat.MsgId{msg.Id})
-	if err != nil {
-		logger.Error(err)
+	selfAddr, err := bot.Rpc.GetConfig(accId, "addr")
+	if msg.Sender.Address != selfAddr.Unwrap() || msg.WebxdcInfo == nil {
+		err = bot.Rpc.DeleteMessages(accId, []deltachat.MsgId{msg.Id})
+		if err != nil {
+			logger.Error(err)
+		} else {
+			println("Deleted message " + strconv.FormatUint(uint64(msg.Id), 10))
+		}
 	}
 }
 
@@ -121,9 +126,15 @@ func resendPads(rpc *deltachat.Rpc, accId deltachat.AccountId, chatId deltachat.
 	selfAddr, err := rpc.GetConfig(accId, "addr")
 	if err == nil {
 		msgIds, _ := rpc.GetMessageIds(accId, chatId, false, false)
+		var msgIdStrings []string
+		for i := range msgIds {
+			msgIdStrings = append(msgIdStrings, strconv.FormatUint(uint64(msgIds[i]), 10))
+		}
+		// println("In this chat I know the messages: " + strings.Join(msgIdStrings, ","))
 		for _, id := range msgIds {
 			msg, _ := rpc.GetMessage(accId, id)
 			senderaddress := msg.Sender.Address
+			// println(strconv.FormatUint(uint64(msg.Id), 10) + senderaddress + selfAddr.Unwrap())
 			if senderaddress == selfAddr.Unwrap() && msg.WebxdcInfo != nil {
 				toResend = append(toResend, id)
 			}
