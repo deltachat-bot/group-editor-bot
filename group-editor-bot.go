@@ -4,6 +4,7 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -129,9 +130,13 @@ func resendPads(rpc *deltachat.Rpc, accId deltachat.AccountId, chatId deltachat.
 		}
 		err := rpc.ResendMessages(accId, toResend)
 		for err != nil {
-			cli.Logger.Error("Resending messages failed, retrying.")
+			var msgIdsStrings []string
+			for i := range toResend {
+				msgIdsStrings = append(msgIdsStrings, strconv.FormatUint(uint64(toResend[i]), 10))
+			}
+			cli.Logger.Error("Resending messages " + strings.Join(msgIdsStrings, ",") + " failed with error: '" + err.Error() + "'. Retrying.")
 			r := rand.Intn(10)
-			time.Sleep(time.Duration(r) * time.Microsecond)
+			time.Sleep(time.Duration(r) * time.Second)
 			err = rpc.ResendMessages(accId, toResend)
 		}
 	}
