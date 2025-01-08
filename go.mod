@@ -6,7 +6,7 @@ toolchain go1.21.0
 
 require (
 	github.com/cavaliergopher/grab/v3 v3.0.1
-	github.com/deltachat-bot/deltabot-cli-go v0.6.1-0.20240206182306-1262a8de3fc0
+	github.com/deltachat-bot/deltabot-cli-go v0.6.1-0.20250108161819-a337c44b9703
 	github.com/deltachat/deltachat-rpc-client-go v1.134.0
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/spf13/cobra v1.8.0
