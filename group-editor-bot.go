@@ -21,14 +21,6 @@ var cli = botcli.New("group-editor-bot")
 func onBotInit(cli *botcli.BotCli, bot *deltachat.Bot, cmd *cobra.Command, args []string) {
 	bot.OnNewMsg(onNewMsg)
 
-	HomeDir, err := os.UserHomeDir()
-	DownloadDir := filepath.Join(HomeDir, ".config", "group-editor-bot")
-	resp, err := grab.Get(DownloadDir, "https://apps.testrun.org/jagtalon-realtime-editor-v4.0.4.xdc")
-	if err != nil {
-		cli.Logger.Error(err)
-	}
-	cli.Logger.Info("Download saved to", resp.Filename)
-
 	accounts, err := bot.Rpc.GetAllAccountIds()
 	if err != nil {
 		cli.Logger.Error(err)
@@ -211,6 +203,15 @@ func sendInviteQr(rpc *deltachat.Rpc, accId deltachat.AccountId, chatId deltacha
 
 func main() {
 	cli.OnBotInit(onBotInit)
+
+	HomeDir, err := os.UserHomeDir()
+	DownloadDir := filepath.Join(HomeDir, ".config", "group-editor-bot")
+	resp, err := grab.Get(DownloadDir, "https://apps.testrun.org/jagtalon-realtime-editor-v4.0.4.xdc")
+	if err != nil {
+		cli.Logger.Error(err)
+	}
+	cli.Logger.Info("Download saved to ", resp.Filename)
+
 	if err := cli.Start(); err != nil {
 		cli.Logger.Error(err)
 	}
