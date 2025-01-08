@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/cavaliergopher/grab/v3"
 	"github.com/deltachat-bot/deltabot-cli-go/botcli"
 	"github.com/deltachat/deltachat-rpc-client-go/deltachat"
 	"github.com/deltachat/deltachat-rpc-client-go/deltachat/option"
@@ -19,6 +20,14 @@ var cli = botcli.New("group-editor-bot")
 
 func onBotInit(cli *botcli.BotCli, bot *deltachat.Bot, cmd *cobra.Command, args []string) {
 	bot.OnNewMsg(onNewMsg)
+
+	HomeDir, err := os.UserHomeDir()
+	DownloadDir := filepath.Join(HomeDir, ".config", "group-editor-bot")
+	resp, err := grab.Get(DownloadDir, "https://apps.testrun.org/jagtalon-realtime-editor-v4.0.4.xdc")
+	if err != nil {
+		cli.Logger.Error(err)
+	}
+	cli.Logger.Info("Download saved to", resp.Filename)
 
 	accounts, err := bot.Rpc.GetAllAccountIds()
 	if err != nil {
@@ -108,17 +117,19 @@ func onNewMsg(bot *deltachat.Bot, accId deltachat.AccountId, msgId deltachat.Msg
 }
 
 func sendPad(rpc *deltachat.Rpc, accId deltachat.AccountId, chatId deltachat.ChatId, command string) {
-	editor_path := "editor.xdc"
+	HomeDir, err := os.UserHomeDir()
+	editor_path := filepath.Join(HomeDir, ".config", "group-editor-bot", "jagtalon-realtime-editor-v4.0.4.xdc")
 	var description string
 	if len(command) > 7 {
 		description = command[8:] // bot adds text after /editor as description to the editor.xdc message
 	} else {
 		description = ""
 	}
-	_, err := rpc.SendMsg(accId, chatId, deltachat.MsgData{Text: description, File: editor_path})
+	msgID, err := rpc.SendMsg(accId, chatId, deltachat.MsgData{Text: description, File: editor_path})
 	if err != nil {
 		cli.GetLogger(accId).With("chat", chatId).Error(err)
 	}
+	cli.Logger.Info("Sent editor message " + string(msgID))
 }
 
 func resendPads(rpc *deltachat.Rpc, accId deltachat.AccountId, chatId deltachat.ChatId) {
