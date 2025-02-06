@@ -50,6 +50,7 @@ func onBotInit(cli *botcli.BotCli, bot *deltachat.Bot, cmd *cobra.Command, args 
 
 func onNewMsg(bot *deltachat.Bot, accId deltachat.AccountId, msgId deltachat.MsgId) {
 	logger := cli.GetLogger(accId).With("msg", msgId)
+	selfAddr, err := bot.Rpc.GetConfig(accId, "addr")
 	msg, err := bot.Rpc.GetMessage(accId, msgId)
 	if err != nil {
 		logger.Error(err)
@@ -58,6 +59,12 @@ func onNewMsg(bot *deltachat.Bot, accId deltachat.AccountId, msgId deltachat.Msg
 
 	if msg.SystemMessageType == deltachat.SysmsgMemberAddedToGroup {
 		resendPads(bot.Rpc, accId, msg.ChatId)
+	}
+
+	if msg.SystemMessageType == deltachat.SysmsgMemberRemovedFromGroup {
+		if strings.Contains(msg.Text, "Member Me ("+*selfAddr.Value+") removed by ") {
+			bot.Rpc.DeleteChat(accId, msg.ChatId)
+		}
 	}
 
 	if !msg.IsBot && !msg.IsInfo && msg.FromId > deltachat.ContactLastSpecial {
@@ -97,7 +104,6 @@ func onNewMsg(bot *deltachat.Bot, accId deltachat.AccountId, msgId deltachat.Msg
 		}
 	}
 
-	selfAddr, err := bot.Rpc.GetConfig(accId, "addr")
 	if msg.Sender.Address != selfAddr.Unwrap() || msg.WebxdcInfo == nil {
 		err = bot.Rpc.DeleteMessages(accId, []deltachat.MsgId{msg.Id})
 		if err != nil {
