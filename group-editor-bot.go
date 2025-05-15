@@ -116,7 +116,7 @@ func onNewMsg(bot *deltachat.Bot, accId deltachat.AccountId, msgId deltachat.Msg
 
 func sendPad(rpc *deltachat.Rpc, accId deltachat.AccountId, chatId deltachat.ChatId, command string) {
 	HomeDir, err := os.UserHomeDir()
-	editor_path := filepath.Join(HomeDir, ".config", "group-editor-bot", "jagtalon-realtime-editor-v4.0.4.xdc")
+	editor_path := filepath.Join(HomeDir, ".config", "group-editor-bot", "durian-realtime-editor-v4.0.4.xdc")
 	var description string
 	if len(command) > 7 {
 		description = command[8:] // bot adds text after /editor as description to the editor.xdc message
@@ -212,7 +212,7 @@ func main() {
 
 	HomeDir, err := os.UserHomeDir()
 	DownloadDir := filepath.Join(HomeDir, ".config", "group-editor-bot")
-	resp, err := grab.Get(DownloadDir, "https://apps.testrun.org/jagtalon-realtime-editor-v4.0.4.xdc")
+	resp, err := grab.Get(DownloadDir, "https://apps.testrun.org/durian-realtime-editor-v4.0.4.xdc")
 	if err != nil {
 		cli.Logger.Error(err)
 	}
