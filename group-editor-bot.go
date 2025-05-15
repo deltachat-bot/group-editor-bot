@@ -148,6 +148,12 @@ func resendPads(rpc *deltachat.Rpc, accId deltachat.AccountId, chatId deltachat.
 				toResend = append(toResend, id)
 			}
 		}
+        // We wait here 5 seconds because otherwise the newly added member
+        // might get the bot's messages before the member-added message
+        // which breaks for the newly added member ("unable to verify sender")
+        // This needs to be prevented on the chatmail core side but as of May 15 2025
+        // this wait here makes it less likely the asynchronicity issue happens.
+	    time.Sleep(5 * time.Second)
 		if toResend != nil {
 			err := rpc.ResendMessages(accId, toResend)
 			for err != nil {
