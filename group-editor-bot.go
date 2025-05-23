@@ -153,7 +153,7 @@ func resendPads(rpc *deltachat.Rpc, accId deltachat.AccountId, chatId deltachat.
         // which breaks for the newly added member ("unable to verify sender")
         // This needs to be prevented on the chatmail core side but as of May 15 2025
         // this wait here makes it less likely the asynchronicity issue happens.
-	    time.Sleep(5 * time.Second)
+	    time.Sleep(20 * time.Second)
 		if toResend != nil {
 			err := rpc.ResendMessages(accId, toResend)
 			for err != nil {
