@@ -92,6 +92,9 @@ func onNewMsg(bot *deltachat.Bot, accId deltachat.AccountId, msgId deltachat.Msg
 					logger.Error(err)
 				}
 			}
+		case "/pin":
+			sendMessage(bot.Rpc, accId, msg.ChatId, msg.Text)
+			return
 		case "/editor":
 			sendPad(bot.Rpc, accId, msg.ChatId, msg.Text)
 			return
@@ -104,7 +107,7 @@ func onNewMsg(bot *deltachat.Bot, accId deltachat.AccountId, msgId deltachat.Msg
 		}
 	}
 
-	if msg.Sender.Address != selfAddr.Unwrap() || msg.WebxdcInfo == nil {
+	if msg.Sender.Address != selfAddr.Unwrap() {
 		err = bot.Rpc.DeleteMessages(accId, []deltachat.MsgId{msg.Id})
 		if err != nil {
 			logger.Error(err)
@@ -112,6 +115,20 @@ func onNewMsg(bot *deltachat.Bot, accId deltachat.AccountId, msgId deltachat.Msg
 			println("Deleted message " + strconv.FormatUint(uint64(msg.Id), 10))
 		}
 	}
+}
+
+func sendMessage(rpc *deltachat.Rpc, accId deltachat.AccountId, chatId deltachat.ChatId, command string) {
+	var description string
+	if len(command) > 7 {
+		description = command[5:] // bot adds text after /pin as text for the pinned message
+	} else {
+		description = ""
+	}
+	msgID, err := rpc.SendMsg(accId, chatId, deltachat.MsgData{Text: description})
+	if err != nil {
+		cli.GetLogger(accId).With("chat", chatId).Error(err)
+	}
+	cli.Logger.Info("Sent pinned message " + string(msgID))
 }
 
 func sendPad(rpc *deltachat.Rpc, accId deltachat.AccountId, chatId deltachat.ChatId, command string) {
@@ -144,7 +161,7 @@ func resendPads(rpc *deltachat.Rpc, accId deltachat.AccountId, chatId deltachat.
 			msg, _ := rpc.GetMessage(accId, id)
 			senderaddress := msg.Sender.Address
 			// println(strconv.FormatUint(uint64(msg.Id), 10) + senderaddress + selfAddr.Unwrap())
-			if senderaddress == selfAddr.Unwrap() && msg.WebxdcInfo != nil {
+			if senderaddress == selfAddr.Unwrap() {
 				toResend = append(toResend, id)
 			}
 		}
@@ -207,9 +224,14 @@ func sendInviteQr(rpc *deltachat.Rpc, accId deltachat.AccountId, chatId deltacha
 		logger.Error(err)
 		return
 	}
-	_, err = rpc.SendMsg(accId, chatId, deltachat.MsgData{Text: qrdata, File: path})
+	msgId, err := rpc.SendMsg(accId, chatId, deltachat.MsgData{Text: qrdata, File: path})
 	if err != nil {
 		logger.Error(err)
+	}
+	time.Sleep(10 * time.Second) // sleep for 10 seconds, so the message has a chance to be sent
+	err = rpc.DeleteMessages(accId, []deltachat.MsgId{msgId})
+	if err != nil {
+		cli.Logger.Error(err)
 	}
 }
 
