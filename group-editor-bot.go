@@ -148,6 +148,7 @@ func sendPad(rpc *deltachat.Rpc, accId deltachat.AccountId, chatId deltachat.Cha
 }
 
 func resendPads(rpc *deltachat.Rpc, accId deltachat.AccountId, chatId deltachat.ChatId) {
+	logger := cli.GetLogger(accId).With("chat", chatId)
 	var toResend []deltachat.MsgId
 	selfAddr, err := rpc.GetConfig(accId, "addr")
 	if err == nil {
@@ -161,6 +162,17 @@ func resendPads(rpc *deltachat.Rpc, accId deltachat.AccountId, chatId deltachat.
 			msg, _ := rpc.GetMessage(accId, id)
 			senderaddress := msg.Sender.Address
 			// println(strconv.FormatUint(uint64(msg.Id), 10) + senderaddress + selfAddr.Unwrap())
+            // delete MemberAdded System Messages instead of trying to resend them; it will fail
+            if msg.SystemMessageType == deltachat.SysmsgMemberAddedToGroup && msg.Sender.Address == selfAddr.Unwrap() {
+                text := msg.Text
+                err = rpc.DeleteMessages(accId, []deltachat.MsgId{msg.Id})
+                if err != nil {
+                    logger.Error(err)
+                } else {
+                    println("Deleted message " + strconv.FormatUint(uint64(msg.Id), 10) + ": " + text)
+                }
+                continue
+            }
 			if senderaddress == selfAddr.Unwrap() {
 				toResend = append(toResend, id)
 			}
