@@ -1,2 +1,0 @@
-[console_scripts]
-group-editor-bot = group_editor_bot.hooks:main
