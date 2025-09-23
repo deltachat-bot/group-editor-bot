@@ -16,41 +16,44 @@ HELP_MSG = (
 @hooks.on(events.NewMessage)
 def command(event):
     snapshot = event.message_snapshot
+    account = snapshot.chat.account
 
     if not snapshot.text.startswith("/"):
         return  # Not a command
-    elif snapshot.text == "/invite":
+    elif snapshot.text.strip() == "/invite":
         snapshot.chat.send_text(snapshot.chat.get_qr_code())
     elif snapshot.text.strip() == "/help":
         snapshot.chat.send_text(HELP_MSG)
-    elif snapshot.text == "/pin":
+    elif snapshot.text.startswith("/pin"):
         snapshot.chat.send_message(text=snapshot.text[5:], file=snapshot.file)
-    elif snapshot.text == "/editor":
-        editor_path = (
+    elif snapshot.text.startswith("/editor"):
+        editor_path = str(
             importlib.resources.files(__package__) / "durian-realtime-editor-v4.0.4.xdc"
         )
         snapshot.chat.send_message(text=snapshot.text[8:], file=editor_path)
 
-    if snapshot.sender != event.account.self_contact:
-        event.account.delete_messages([snapshot])
+    if snapshot.sender != account.self_contact:
+        account.delete_messages([snapshot])
         print(f"Deleted message {snapshot.id}")
 
 
 @hooks.on(events.MemberListChanged)
 def member_added_or_removed(event):
     """If a member was added to the group chat, re-send own messages."""
+    snapshot = event.message_snapshot
+    account = snapshot.chat.account
+    if os.getenv("DEBUG") == "true":
+        print("member %s was %s" % (event.member, "added" if event.member_added else "removed"))
     if event.member_added:
         # If member added to group, resend pads
         to_resend = []
-        for msg in event.chat:
-            if msg.sender == event.account.self_contact:
+        for msg in snapshot.chat.get_messages():
+            if msg.get_snapshot().sender == account.self_contact and not msg.get_snapshot().is_info:
                 to_resend.append(msg)
-        event.chat.resend_messages(to_resend)
+        snapshot.chat.resend_messages(to_resend)
     else:
-        if event.member == event.account.self_contact:
-            delete_data(event.chat)
-
-
+        if not snapshot.chat.get_full_snapshot().self_in_group:
+            delete_data(snapshot.chat)
 
 
 @hooks.on(events.RawEvent)
@@ -61,7 +64,7 @@ def catch_events(event):
 
     :param event: the event object
     """
-    if os.getenv("DEBUG").lower() == "true":
+    if os.getenv("DEBUG") == "true":
         print(event)
     if event.kind == EventType.IMAP_CONNECTED:
         event.account.set_config("selfstatus", HELP_MSG)
