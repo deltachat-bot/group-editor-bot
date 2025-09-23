@@ -1,0 +1,17 @@
+Metadata-Version: 2.4
+Name: group-editor-bot
+Version: 1.0.0
+Summary: Delta Chat bot that manages editors for a group, even when new people join.
+Author-email: missytake <missytake@systemli.org>
+Project-URL: Repository, https://github.com/deltachat-bot/group-editor-bot/
+Project-URL: Issues, https://github.com/deltachat-bot/group-editor-bot/issues
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+License-File: LICENSE.txt
+Requires-Dist: deltachat-rpc-client
+Requires-Dist: deltachat-rpc-server
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: tox; extra == "dev"
+Requires-Dist: ruff; extra == "dev"
+Dynamic: license-file

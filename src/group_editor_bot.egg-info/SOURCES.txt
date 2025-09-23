@@ -1,0 +1,12 @@
+LICENSE.txt
+README.md
+pyproject.toml
+src/group_editor_bot/__init__.py
+src/group_editor_bot/hooks.py
+src/group_editor_bot.egg-info/PKG-INFO
+src/group_editor_bot.egg-info/SOURCES.txt
+src/group_editor_bot.egg-info/dependency_links.txt
+src/group_editor_bot.egg-info/entry_points.txt
+src/group_editor_bot.egg-info/requires.txt
+src/group_editor_bot.egg-info/top_level.txt
+tests/test_hooks.py
