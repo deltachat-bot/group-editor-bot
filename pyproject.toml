@@ -1,0 +1,68 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "group-editor-bot"
+version = "1.0.0"
+authors = [{ name = "missytake", email = "missytake@systemli.org" }]
+description = "Delta Chat bot that manages editors for a group, even when new people join."
+readme = "file: README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "deltachat-rpc-client",
+    "deltachat-rpc-server",
+]
+
+[project.urls]
+Repository = "https://github.com/deltachat-bot/group-editor-bot/"
+Issues = "https://github.com/deltachat-bot/group-editor-bot/issues"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ['src']
+
+[project.scripts]
+group-editor-bot = "group_editor_bot.hooks:main"
+
+[project.optional-dependencies]
+dev = ["pytest", "tox", "ruff",]
+
+[tool.ruff]
+lint.select = [
+  "F", # Pyflakes
+  "I", # isort
+
+  "PLC", # Pylint Convention
+  "PLE", # Pylint Error
+  "PLW", # Pylint Warning
+]
+
+[tool.pytest.ini_options]
+addopts = "-v -ra --strict-markers"
+log_format = "%(asctime)s %(levelname)s %(message)s"
+log_date_format = "%Y-%m-%d %H:%M:%S"
+log_level = "INFO"
+
+[tool.tox]
+isolated_build = true
+envlist = ["lint","py"]
+
+[tool.tox.env_run_base]
+description = "Run tests under {base_python}"
+commands = [["pytest -v -rsXx {posargs}"]]
+deps = [
+    "pytest",
+    "pdbpp",
+]
+
+[tool.tox.env.lint]
+skipdist = true
+skip_install = true
+deps = ["ruff"]
+commands = [
+    ["ruff", "format", "--quiet", "--diff", "src/", "tests/"],
+    ["ruff", "check", "src/", "tests/"]
+]

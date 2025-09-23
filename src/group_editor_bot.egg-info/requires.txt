@@ -1,0 +1,7 @@
+deltachat-rpc-client
+deltachat-rpc-server
+
+[dev]
+pytest
+tox
+ruff
