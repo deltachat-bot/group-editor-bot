@@ -19,7 +19,7 @@ def command(event):
     account = snapshot.chat.account
 
     if not snapshot.text.startswith("/"):
-        return  # Not a command
+        """Not a command"""
     elif snapshot.text.strip() == "/invite":
         reply = snapshot.chat.send_text(snapshot.chat.get_qr_code())
     elif snapshot.text.strip() == "/help":
