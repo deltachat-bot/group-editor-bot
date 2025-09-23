@@ -19,12 +19,14 @@ def test_delete_data(acfactory):
     msg = bot.wait_for_incoming_msg()
 
     assert len(bot.get_chatlist()) == 3
-    delete_data(msg.get_snapshot())
+    delete_data(msg.get_snapshot().chat)
     assert bot.get_contacts() == []
     assert len(bot.get_chatlist()) == 2
 
 
-@pytest.mark.parametrize(["text", "file", "reply_text", "reply_file"], {[]})
+@pytest.mark.parametrize(
+    ["text", "file", "reply_text", "reply_file"], [["", "", "", ""]]
+)
 def test_commands(text, file, reply_text, reply_file):
     pytest.skip("Not yet tested")
 

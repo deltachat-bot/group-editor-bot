@@ -52,7 +52,7 @@ envlist = ["lint","py"]
 
 [tool.tox.env_run_base]
 description = "Run tests under {base_python}"
-commands = [["pytest -v -rsXx {posargs}"]]
+commands = [["pytest", "-v", "-rsXx {posargs}"]]
 deps = [
     "pytest",
     "pdbpp",

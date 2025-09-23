@@ -1,7 +1,7 @@
 import importlib.resources
 import os
 
-from deltachat_rpc_client import EventType, Chat, events, run_bot_cli
+from deltachat_rpc_client import Chat, EventType, events, run_bot_cli
 
 hooks = events.HookCollection()
 
@@ -21,9 +21,9 @@ def command(event):
     if not snapshot.text.startswith("/"):
         return  # Not a command
     elif snapshot.text.strip() == "/invite":
-        snapshot.chat.send_text(snapshot.chat.get_qr_code())
+        reply = snapshot.chat.send_text(snapshot.chat.get_qr_code())
     elif snapshot.text.strip() == "/help":
-        snapshot.chat.send_text(HELP_MSG)
+        reply = snapshot.chat.send_text(HELP_MSG)
     elif snapshot.text.startswith("/pin"):
         snapshot.chat.send_message(text=snapshot.text[5:], file=snapshot.file)
     elif snapshot.text.startswith("/editor"):
@@ -35,6 +35,9 @@ def command(event):
     if snapshot.sender != account.self_contact:
         account.delete_messages([snapshot])
         print(f"Deleted message {snapshot.id}")
+    if "reply" in locals():
+        reply.wait_until_delivered()
+        account.delete_messages([reply])
 
 
 @hooks.on(events.MemberListChanged)
@@ -43,12 +46,14 @@ def member_added_or_removed(event):
     snapshot = event.message_snapshot
     account = snapshot.chat.account
     if os.getenv("DEBUG") == "true":
-        print("member %s was %s" % (event.member, "added" if event.member_added else "removed"))
+        change = "added" if event.member_added else "removed"
+        print("member %s was %s" % (event.member, change))
     if event.member_added:
         # If member added to group, resend pads
         to_resend = []
         for msg in snapshot.chat.get_messages():
-            if msg.get_snapshot().sender == account.self_contact and not msg.get_snapshot().is_info:
+            msg_snap = msg.get_snapshot()
+            if msg_snap.sender == account.self_contact and not msg_snap.is_info:
                 to_resend.append(msg)
         snapshot.chat.resend_messages(to_resend)
     else:
