@@ -4,3 +4,8 @@ coverage-percent.out
 coverage.out
 group-editor-bot
 .idea/*
+src/*.egg-info/*
+.venv/*
+build/*
+/accounts/
+**/__pycache__/*

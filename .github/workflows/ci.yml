@@ -1,93 +1,23 @@
 name: CI
 
 on:
-  push:
-    branches: [ "master" ]
-    tags:
-      - 'v*.*.*'
   pull_request:
-    branches: [ "master" ]
 
 jobs:
-
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.12', '3.11']
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up Go
-        uses: actions/setup-go@v3
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
         with:
-          go-version: '1.21'
-          cache: true
-
-      - name: Test
+          python-version: ${{ matrix.python-version }}
+      - name: Install package
         run: |
-          export TEST_DEBUG=1
-          export TEST_EXTRA_TAGS=" "
-          bash ./scripts/run_tests.sh
+          python -m pip install --upgrade pip
+          python -m pip install '.[dev]'
+      - run: tox
 
-      - name: Coverage Badge - Generate
-        if: github.event_name != 'pull_request'
-        uses: tj-actions/coverage-badge-go@v2
-        with:
-          filename: coverage-percent.out
-
-      - name: Verify Changed files
-        uses: tj-actions/verify-changed-files@v12
-        id: verify-changed-files
-        with:
-          files: README.md
-
-      - name: Commit changes
-        if: steps.verify-changed-files.outputs.files_changed == 'true'
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add README.md
-          git commit -m "chore: Update README.md"
-
-      - name: Push changes
-        if: steps.verify-changed-files.outputs.files_changed == 'true'
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.head_ref }}
-
-    services:
-      mail_server:
-        image: ghcr.io/deltachat/mail-server-tester:release
-        ports:
-          - 3025:25
-          - 3143:143
-          - 3465:465
-          - 3993:993
-
-
-  release:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - run: git fetch --force --tags
-      - id: check-tag
-        run: |
-          if [[ "${{ github.event.ref }}" =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              echo ::set-output name=match::true
-          fi
-      - uses: actions/setup-go@v3
-        if: ${{ github.event_name == 'push' && steps.check-tag.outputs.match == 'true' }}
-        with:
-          go-version: '1.21'
-          cache: true
-      - run: sudo apt install gcc-multilib
-      - uses: goreleaser/goreleaser-action@v4
-        if: ${{ github.event_name == 'push' && steps.check-tag.outputs.match == 'true' }}
-        with:
-          distribution: goreleaser
-          version: latest
-          args: release --clean
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
