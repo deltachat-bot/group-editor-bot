@@ -4,8 +4,6 @@ import pytest
 
 from group_editor_bot.hooks import delete_data
 
-WKD_TIMEOUT = 1
-
 
 def test_delete_data(acfactory):
     if not os.getenv("CHATMAIL_DOMAIN"):
