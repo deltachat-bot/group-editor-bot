@@ -44,18 +44,12 @@ def command(event):
 def member_added_or_removed(event):
     """If a member was added to the group chat, re-send own messages."""
     snapshot = event.message_snapshot
-    account = snapshot.chat.account
     if os.getenv("DEBUG") == "true":
         change = "added" if event.member_added else "removed"
         print("member %s was %s" % (event.member, change))
     if event.member_added:
         # If member added to group, resend pads
-        to_resend = []
-        for msg in snapshot.chat.get_messages():
-            msg_snap = msg.get_snapshot()
-            if msg_snap.sender == account.self_contact and not msg_snap.is_info:
-                to_resend.append(msg)
-        snapshot.chat.resend_messages(to_resend)
+        resend_messages(snapshot.chat)
     else:
         if not snapshot.chat.get_full_snapshot().self_in_group:
             delete_data(snapshot.chat)
@@ -71,6 +65,9 @@ def catch_events(event):
     """
     if os.getenv("DEBUG") == "true":
         print(event)
+    if event.kind == EventType.SECUREJOIN_INVITER_PROGRESS:
+        if event.progress == 1000:
+            resend_messages(event.account.get_chat_by_id(event.chat_id))
     if event.kind == EventType.IMAP_CONNECTED:
         event.account.set_config("selfstatus", HELP_MSG)
         event.account.set_config("delete_device_after", "3600")
@@ -80,11 +77,18 @@ def catch_events(event):
         )
 
 
-def delete_data(chat: Chat):
-    """For a message, delete the chat and all contacts which were in it to clean up.
+def resend_messages(chat: Chat):
+    """Resend all own messages (except info messages) in a Chat."""
+    to_resend = []
+    for msg in chat.get_messages():
+        msg_snap = msg.get_snapshot()
+        if msg_snap.sender == chat.account.self_contact and not msg_snap.is_info:
+            to_resend.append(msg)
+    chat.resend_messages(to_resend)
 
-    :param msg: a Delta Chat Message snapshot
-    """
+
+def delete_data(chat: Chat):
+    """For a message, delete the chat and all contacts which were in it to clean up."""
     contacts = chat.get_contacts()
     chat.delete()
     for member in contacts:
