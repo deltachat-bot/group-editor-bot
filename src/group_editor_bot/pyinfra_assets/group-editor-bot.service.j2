@@ -2,8 +2,9 @@
 Description=run deltachat group-editor-bot: {{ bot_email }}
 
 [Service]
-ExecStart=/home/{{ unix_user }}/.local/lib/team-bot.venv/bin/team-bot run -v
+ExecStart=/home/{{ unix_user }}/.local/lib/group-editor-bot.venv/bin/group-editor-bot {{ dbdir }}
 EnvironmentFile=/home/{{ unix_user }}/.env
+Environment="PATH=/home/{{ unix_user }}/.local/lib/group-editor-bot.venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
 Restart=on-failure
 RestartSec=5s
 

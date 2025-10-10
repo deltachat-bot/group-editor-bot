@@ -41,6 +41,7 @@ def deploy_group_editor_bot(unix_user: str, bot_email: str, bot_passwd: str, dbd
     if not dbdir:
         dbdir = f"/home/{unix_user}/.config/team_bot/{bot_email}/"
     secrets = [
+        "DEBUG=true",
         f"TEAMS_DBDIR={dbdir}",
         f"TEAMS_INIT_EMAIL={bot_email}",
         f"TEAMS_INIT_PASSWORD={bot_passwd}",
@@ -71,6 +72,7 @@ def deploy_group_editor_bot(unix_user: str, bot_email: str, bot_passwd: str, dbd
         user=unix_user,
         unix_user=unix_user,
         bot_email=bot_email,
+        dbdir=dbdir,
     )
 
     systemd.daemon_reload(
