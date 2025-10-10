@@ -32,7 +32,7 @@ def deploy_group_editor_bot(unix_user: str, bot_email: str, bot_passwd: str, dbd
             commands=[
                 "python3 -m venv ~/.local/lib/group-editor-bot.venv",
                 "~/.local/lib/group-editor-bot.venv/bin/pip install -U pip wheel",
-                "cd /home/{unix_user}/group-editor-bot && .local/lib/group-editor-bot.venv/bin/pip install .",
+                f"cd /home/{unix_user}/group-editor-bot && .local/lib/group-editor-bot.venv/bin/pip install .",
             ],
             _su_user=unix_user,
             _use_su_login=True,
