@@ -70,7 +70,7 @@ def catch_events(event):
             resend_messages(event.account.get_chat_by_id(event.chat_id))
     if event.kind == EventType.IMAP_CONNECTED:
         event.account.set_config("selfstatus", HELP_MSG)
-        event.account.set_config("delete_device_after", "3600")
+        event.account.set_config("delete_device_after", "0")
         print(
             "The bot can be reached via this invite link: "
             + event.account.get_qr_code()
