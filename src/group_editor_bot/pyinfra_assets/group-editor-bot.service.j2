@@ -1,0 +1,11 @@
+[Unit]
+Description=run deltachat group-editor-bot: {{ bot_email }}
+
+[Service]
+ExecStart=/home/{{ unix_user }}/.local/lib/team-bot.venv/bin/team-bot run -v
+EnvironmentFile=/home/{{ unix_user }}/.env
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
