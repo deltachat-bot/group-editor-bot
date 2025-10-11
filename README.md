@@ -3,7 +3,7 @@
 Small bot that manages editors for a group,
 and resends it when new people join.
 
-The flagship instance is: <groupedit@nine.testrun.org>
+The flagship instance is: [groupedit@nine.testrun.org](https://i.delta.chat/#AB68F428FCEF88D32B46189314FDBB18B2789654&a=groupedit%40nine.testrun.org&n=Group%20Editor%20Bot&i=Ggt6rA8fZ89DCKXU2eOBXAOy&s=wdoG_ZGB15llV69gLG_sFCZw)
 
 It can also generate invitation QRs for your private Delta Chat groups. The bot is always online
 and can add people to groups in "real time" while if you use your own invitation QRs, others will not be able
@@ -11,36 +11,25 @@ to join until you are online.
 
 ## Install
 
-Binary releases can be found at: https://github.com/deltachat-bot/group-editor-bot/releases
-
 To install from source:
 
 ```sh
-go install github.com/deltachat-bot/group-editor-bot@latest
+git clone https://github.com/deltachat-bot/group-editor-bot
+cd group-editor-bot
+python3 -m venv venv
+. venv/bin/activate
+pip install -e .
 ```
-
-### Installing deltachat-rpc-server
-
-This program depends on a standalone Delta Chat RPC server `deltachat-rpc-server` program that must be
-available in your `PATH`. For installation instructions check:
-https://github.com/deltachat/deltachat-core-rust/tree/master/deltachat-rpc-server
 
 ## Running the bot
 
-Configure the bot:
+Configure & start the bot:
 
 ```sh
-group-editor-bot init bot@example.com PASSWORD
-```
-
-Start the bot:
-
-```sh
-group-editor-bot serve
+group-editor-bot --email groupedit@example.org --password s3cr3t
 ```
 
 Run `group-editor-bot --help` to see all available options.
-
 
 ## Usage in Delta Chat
 
