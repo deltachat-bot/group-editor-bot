@@ -23,7 +23,7 @@ def group(acfactory, bot, log):
     creator.set_config("displayname", "Creator from groupedit test")
 
     log.step("Creator creates group")
-    creator_group = creator.create_group("test_member_added")
+    creator_group = creator.create_group("groupedit test")
     creator_invite = creator_group.get_qr_code()
 
     log.step("Bot joins group")

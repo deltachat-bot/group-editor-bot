@@ -59,12 +59,12 @@ def test_bot_removed(bot, group, log):
     bot_contact = group.get_contacts()[0]
     group.remove_contact(bot_contact)
 
-    def bot_removed(event):
-        if event.kind == EventType.CHAT_MODIFIED:
+    def contacts_removed(event):
+        if not event.account.get_contacts():
             return True
 
     log.step("Bot gets removed")
-    bot.run_until(bot_removed)
+    bot.run_until(contacts_removed)
     assert bot.account.get_contacts() == []
     assert len(bot.account.get_chatlist()) == 0
 
