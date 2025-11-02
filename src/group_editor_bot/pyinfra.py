@@ -1,7 +1,7 @@
-from io import StringIO
 import importlib.resources
+from io import StringIO
 
-from pyinfra.operations import git, server, files, systemd
+from pyinfra.operations import files, git, server, systemd
 
 
 def deploy_group_editor_bot(
