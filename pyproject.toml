@@ -28,7 +28,7 @@ where = ['src']
 group-editor-bot = "group_editor_bot.hooks:main"
 
 [project.optional-dependencies]
-dev = ["pytest", "tox", "ruff",]
+dev = ["pytest", "pytest-env", "pytest-timeout", "pytest-xdist", "tox", "ruff",]
 
 [tool.ruff]
 lint.select = [
@@ -45,6 +45,8 @@ addopts = "-v -ra --strict-markers"
 log_format = "%(asctime)s %(levelname)s %(message)s"
 log_date_format = "%Y-%m-%d %H:%M:%S"
 log_level = "INFO"
+timeout = "20"
+env = ["CHATMAIL_DOMAIN=nine.testrun.org"]
 
 [tool.tox]
 isolated_build = true
@@ -52,9 +54,12 @@ envlist = ["lint","py"]
 
 [tool.tox.env_run_base]
 description = "Run tests under {base_python}"
-commands = [["pytest", "-v", "-rsXx {posargs}"]]
+commands = [["pytest", "-vn4", "-rsXx {posargs}"]]
 deps = [
     "pytest",
+    "pytest-env",
+    "pytest-xdist",
+    "pytest-timeout",
     "pdbpp",
 ]
 

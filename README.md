@@ -49,6 +49,6 @@ You can run lint and tests to ensure code quality and functionality:
 
 ```
 pip install -e .[dev]
-CHATMAIL_DOMAIN=nine.testrun.org tox
+tox
 ```
 

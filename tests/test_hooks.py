@@ -1,5 +1,4 @@
 import logging
-import os
 
 import pytest
 from deltachat_rpc_client.events import EventType, MemberListChanged, RawEvent
@@ -8,8 +7,6 @@ from group_editor_bot.hooks import catch_events, delete_data, member_added_or_re
 
 
 def test_delete_data(acfactory):
-    if not os.getenv("CHATMAIL_DOMAIN"):
-        os.environ["CHATMAIL_DOMAIN"] = "nine.testrun.org"
     bot, user = acfactory.get_online_accounts(2)  # waiter lock
     joincode = bot.get_qr_code()
     chat = user.secure_join(joincode)
