@@ -53,20 +53,31 @@ def test_bot_forgets_non_commands(bot, group, log):
     assert msg not in group.bot_group.get_messages()
 
 
-def test_bot_removed(bot, group, log):
-    log.step("Creator removes Bot from Group")
-    assert len(bot.account.get_chatlist()) == 1
+def test_bot_removed(bot, group, joiner, log):
+    log.step("Joiner adds Bot to extra group")
+    extra_group = joiner.create_group("groupedit test")
+    extra_invite = extra_group.get_qr_code()
+
+    log.step("Bot joins extra group")
+    bot_extra_group = bot.account.secure_join(extra_invite)
+    bot.account.wait_for_securejoin_joiner_success()
+    bot.account.wait_for_incoming_msg()
+    extra_contacts = bot_extra_group.get_contacts()
+
+    log.step("Creator removes Bot from group")
+    assert len(bot.account.get_chatlist()) == 2
     bot_contact = group.get_contacts()[0]
     group.remove_contact(bot_contact)
 
     def contacts_removed(event):
-        if not event.account.get_contacts():
+        if len(event.account.get_contacts()) == 1:
             return True
 
     log.step("Bot gets removed")
     bot.run_until(contacts_removed)
-    assert bot.account.get_contacts() == []
-    assert len(bot.account.get_chatlist()) == 0
+    assert bot.account.get_contacts()[0] == extra_contacts[0]
+    assert len(bot.account.get_chatlist()) == 1
+    assert bot_extra_group.get_full_snapshot().self_in_group
 
 
 def tests_bot_adds_member(bot, group, joiner, log):
