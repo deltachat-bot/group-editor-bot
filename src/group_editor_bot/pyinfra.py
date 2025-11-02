@@ -4,7 +4,9 @@ import importlib.resources
 from pyinfra.operations import git, server, files, systemd
 
 
-def deploy_group_editor_bot(unix_user: str, bot_email: str, bot_passwd: str, dbdir: str = None):
+def deploy_group_editor_bot(
+    unix_user: str, bot_email: str, bot_passwd: str, dbdir: str = None
+):
     """Deploy Group Editor Bot to a UNIX user, with specified credentials
 
     :param unix_user: the existing UNIX user of the bot
