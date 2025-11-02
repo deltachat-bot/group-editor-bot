@@ -10,6 +10,7 @@ def bot(acfactory, log):
     assert os.getenv("CHATMAIL_DOMAIN")
     log.step("Configuring Bot")
     bot = acfactory.new_configured_bot()
+    bot.account.set_config("displayname", "Bot from groupedit test")
     bot.add_hooks(hooks)
     bot.account.bring_online()
     return bot
@@ -19,6 +20,7 @@ def bot(acfactory, log):
 def group(acfactory, bot, log):
     log.step("Configuring Creator")
     creator = acfactory.get_online_account()
+    creator.set_config("displayname", "Creator from groupedit test")
 
     log.step("Creator creates group")
     creator_group = creator.create_group("test_member_added")
@@ -45,5 +47,6 @@ def joiner(acfactory, log):
 
     log.step("Configuring Joiner")
     joiner = acfactory.get_online_account()
+    joiner.set_config("displayname", "Joiner from groupedit test")
     joiner.join_chat = join_chat
     return joiner
