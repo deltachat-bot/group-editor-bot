@@ -46,7 +46,10 @@ log_format = "%(asctime)s %(levelname)s %(message)s"
 log_date_format = "%Y-%m-%d %H:%M:%S"
 log_level = "INFO"
 timeout = "20"
-env = ["CHATMAIL_DOMAIN=nine.testrun.org"]
+env = [
+    "CHATMAIL_DOMAIN=nine.testrun.org",
+    "DEBUG=true",
+]
 
 [tool.tox]
 isolated_build = true
