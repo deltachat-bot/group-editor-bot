@@ -43,8 +43,30 @@ def test_member_added(bot, group, joiner, log):
     assert joiner_msg.get_snapshot().text == msg.get_snapshot().text
 
 
-def test_bot_removed(acfactory):
-    pytest.skip("Not yet tested")
+def test_bot_forgets_non_commands(bot, group, log):
+    log.step("Creator sends message to be forgotten immediately")
+    group.send_text("Sensitive message")
+
+    log.step("Bot forgets message immediately")
+    msg = bot.account.wait_for_incoming_msg()
+    bot._process_messages()
+    assert msg not in group.bot_group.get_messages()
+
+
+def test_bot_removed(bot, group, log):
+    log.step("Creator removes Bot from Group")
+    assert len(bot.account.get_chatlist()) == 1
+    bot_contact = group.get_contacts()[0]
+    group.remove_contact(bot_contact)
+
+    def bot_removed(event):
+        if event.kind == EventType.CHAT_MODIFIED:
+            return True
+
+    log.step("Bot gets removed")
+    bot.run_until(bot_removed)
+    assert bot.account.get_contacts() == []
+    assert len(bot.account.get_chatlist()) == 0
 
 
 def tests_bot_adds_member(bot, group, joiner, log):
