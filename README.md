@@ -18,7 +18,7 @@ git clone https://github.com/deltachat-bot/group-editor-bot
 cd group-editor-bot
 python3 -m venv venv
 . venv/bin/activate
-pip install -e .
+pip install .
 ```
 
 ## Running the bot
@@ -40,4 +40,15 @@ Once the bot is running:
 3. The bot will post an editor to the group
 4. When new people are added to the group,
    they will already see the editor.
+
+## Development
+
+PRs welcome :)
+
+You can run lint and tests to ensure code quality and functionality:
+
+```
+pip install -e .[dev]
+CHATMAIL_DOMAIN=nine.testrun.org tox
+```
 

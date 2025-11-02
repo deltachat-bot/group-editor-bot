@@ -6,6 +6,7 @@ group-editor-bot
 .idea/*
 src/*.egg-info/*
 .venv/*
+venv/*
 build/*
 /accounts/
 **/__pycache__/*
