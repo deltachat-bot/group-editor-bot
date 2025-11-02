@@ -1,7 +1,9 @@
-import pytest
+import filecmp
+import importlib.resources
+
 from deltachat_rpc_client.events import EventType
 
-from group_editor_bot.hooks import delete_data
+from group_editor_bot.hooks import HELP_MSG, delete_data
 
 
 def test_delete_data(acfactory):
@@ -19,11 +21,80 @@ def test_delete_data(acfactory):
     assert len(bot.get_chatlist()) == 2
 
 
-@pytest.mark.parametrize(
-    ["text", "file", "reply_text", "reply_file"], [["", "", "", ""]]
-)
-def test_commands(text, file, reply_text, reply_file):
-    pytest.skip("Not yet tested")
+def test_best_path(bot, group, joiner, log):
+    test_cases = [
+        dict(
+            text="/help", file=None, reply_text=HELP_MSG, reply_file=None, resend=False
+        ),
+        dict(
+            text="/invite",
+            file=None,
+            reply_text="https://i.delta.chat",
+            reply_file=None,
+            resend=False,
+        ),
+        dict(
+            text="/pin",
+            file=importlib.resources.files("group_editor_bot")
+            / "pyinfra_assets/setup-venv.sh",
+            reply_text="",
+            reply_file=importlib.resources.files("group_editor_bot")
+            / "pyinfra_assets/setup-venv.sh",
+            resend=True,
+        ),
+        dict(
+            text="/pin Setting title text",
+            file=importlib.resources.files("group_editor_bot")
+            / "pyinfra_assets/setup-venv.sh",
+            reply_text="Setting title text",
+            reply_file=importlib.resources.files("group_editor_bot")
+            / "pyinfra_assets/setup-venv.sh",
+            resend=True,
+        ),
+        dict(
+            text="/editor Setting title text",
+            file=None,
+            reply_text="Setting title text",
+            reply_file=importlib.resources.files("group_editor_bot")
+            / "durian-realtime-editor-v4.0.4.xdc",
+            resend=True,
+        ),
+        dict(
+            text="/editor",
+            file=None,
+            reply_text="",
+            reply_file=importlib.resources.files("group_editor_bot")
+            / "durian-realtime-editor-v4.0.4.xdc",
+            resend=True,
+        ),
+    ]
+    for io in test_cases:
+        group.send_text(io["text"])  # , file=io['file'])
+        print(f"Creator sent {io['text']}")
+
+        bot.account.wait_for_incoming_msg()
+        bot._process_messages()
+
+        reply = group.creator.wait_for_incoming_msg()
+        print(f"Creator received {reply.get_snapshot().text}")
+        assert reply.get_snapshot().text.startswith(io["reply_text"])
+        if reply.get_snapshot().file:
+            assert filecmp.cmp(reply.get_snapshot().file, io["reply_file"])
+
+    log.step("Joiner joins the group")
+    joiner.join_chat(group)
+    bot.account.wait_for_incoming_msg()
+    bot._process_messages()
+
+    for io in test_cases:
+        if not io["resend"]:
+            continue
+        print(f"Joiner listens for {io['text']}...")
+        resent = joiner.wait_for_incoming_msg()
+        print(f"Joiner received {resent.get_snapshot().text}")
+        assert resent.get_snapshot().text.startswith(io["reply_text"])
+        if resent.get_snapshot().file:
+            assert filecmp.cmp(resent.get_snapshot().file, io["reply_file"])
 
 
 def test_member_added(bot, group, joiner, log):
