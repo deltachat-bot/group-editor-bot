@@ -92,6 +92,7 @@ def delete_data(chat: Chat):
     contacts = chat.get_contacts()
     chat.delete()
     for member in contacts:
+        member.create_chat().delete()
         member.delete()
 
 
