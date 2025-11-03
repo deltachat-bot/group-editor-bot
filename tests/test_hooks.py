@@ -1,6 +1,7 @@
 import filecmp
 import importlib.resources
 
+import pytest
 from deltachat_rpc_client.events import EventType
 
 from group_editor_bot.hooks import HELP_MSG, delete_data
@@ -21,80 +22,48 @@ def test_delete_data(acfactory):
     assert len(bot.get_chatlist()) == 2
 
 
-def test_best_path(bot, group, joiner, log):
-    test_cases = [
-        dict(
-            text="/help", file=None, reply_text=HELP_MSG, reply_file=None, resend=False
-        ),
-        dict(
-            text="/invite",
-            file=None,
-            reply_text="https://i.delta.chat",
-            reply_file=None,
-            resend=False,
-        ),
-        dict(
-            text="/pin",
-            file=importlib.resources.files("group_editor_bot")
-            / "pyinfra_assets/setup-venv.sh",
-            reply_text="",
-            reply_file=importlib.resources.files("group_editor_bot")
-            / "pyinfra_assets/setup-venv.sh",
-            resend=True,
-        ),
-        dict(
-            text="/pin Setting title text",
-            file=importlib.resources.files("group_editor_bot")
-            / "pyinfra_assets/setup-venv.sh",
-            reply_text="Setting title text",
-            reply_file=importlib.resources.files("group_editor_bot")
-            / "pyinfra_assets/setup-venv.sh",
-            resend=True,
-        ),
-        dict(
-            text="/editor Setting title text",
-            file=None,
-            reply_text="Setting title text",
-            reply_file=importlib.resources.files("group_editor_bot")
-            / "durian-realtime-editor-v4.0.4.xdc",
-            resend=True,
-        ),
-        dict(
-            text="/editor",
-            file=None,
-            reply_text="",
-            reply_file=importlib.resources.files("group_editor_bot")
-            / "durian-realtime-editor-v4.0.4.xdc",
-            resend=True,
-        ),
-    ]
-    for io in test_cases:
-        group.send_text(io["text"])  # , file=io['file'])
-        print(f"Creator sent {io['text']}")
+@pytest.mark.parametrize(
+    ["text", "file", "r_text", "r_file", "resend"],
+    [
+        ("/help", None, HELP_MSG, None, False),
+        ("/invite", None, "https://i.delta.chat", None, False),
+        ("/pin", "hooks.py", "", "hooks.py", True),
+        ("/pin test", "hooks.py", "test", "hooks.py", True),
+        ("/editor test", None, "test", "durian-realtime-editor-v4.0.4.xdc", True),
+        ("/editor", None, "", "durian-realtime-editor-v4.0.4.xdc", True),
+    ],
+)
+def test_commands(bot, group, joiner, log, text, file, r_text, r_file, resend):
+    filename = (
+        str(importlib.resources.files("group_editor_bot") / file) if file else None
+    )
+    r_filename = (
+        importlib.resources.files("group_editor_bot") / r_file if r_file else None
+    )
+    group.send_message(text=text, file=filename)
+    log.step(f"Creator sent {text}")
 
-        bot.account.wait_for_incoming_msg()
-        bot._process_messages()
+    bot.account.wait_for_incoming_msg()
+    bot._process_messages()
 
-        reply = group.creator.wait_for_incoming_msg()
-        print(f"Creator received {reply.get_snapshot().text}")
-        assert reply.get_snapshot().text.startswith(io["reply_text"])
-        if reply.get_snapshot().file:
-            assert filecmp.cmp(reply.get_snapshot().file, io["reply_file"])
+    reply = group.creator.wait_for_incoming_msg()
+    log.step(f"Creator received {reply.get_snapshot().text}")
+    assert reply.get_snapshot().text.startswith(r_text)
+    if reply.get_snapshot().file:
+        assert filecmp.cmp(reply.get_snapshot().file, r_filename)
 
     log.step("Joiner joins the group")
     joiner.join_chat(group)
     bot.account.wait_for_incoming_msg()
     bot._process_messages()
 
-    for io in test_cases:
-        if not io["resend"]:
-            continue
-        print(f"Joiner listens for {io['text']}...")
+    if resend:
+        log.step("Joiner listens for message...")
         resent = joiner.wait_for_incoming_msg()
-        print(f"Joiner received {resent.get_snapshot().text}")
-        assert resent.get_snapshot().text.startswith(io["reply_text"])
+        log.step("Joiner received message.")
+        assert resent.get_snapshot().text.startswith(r_text)
         if resent.get_snapshot().file:
-            assert filecmp.cmp(resent.get_snapshot().file, io["reply_file"])
+            assert filecmp.cmp(resent.get_snapshot().file, r_filename)
 
 
 def test_member_added(bot, group, joiner, log):
