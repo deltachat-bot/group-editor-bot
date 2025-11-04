@@ -52,12 +52,12 @@ def test_commands(bot, group, joiner, log, text, file, r_text, r_file, resend):
     if reply.get_snapshot().file:
         assert filecmp.cmp(reply.get_snapshot().file, r_filename)
 
-    log.step("Joiner joins the group")
-    joiner.join_chat(group)
-    bot.account.wait_for_incoming_msg()
-    bot._process_messages()
-
     if resend:
+        log.step("Joiner joins the group")
+        joiner.join_chat(group)
+        bot.account.wait_for_incoming_msg()
+        bot._process_messages()
+
         log.step("Joiner listens for message...")
         resent = joiner.wait_for_incoming_msg()
         log.step("Joiner received message.")
