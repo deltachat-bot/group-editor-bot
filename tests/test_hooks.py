@@ -105,7 +105,7 @@ def test_bot_removed(bot, group, joiner, log):
     extra_contacts = bot_extra_group.get_contacts()
 
     log.step("Creator removes Bot from group")
-    assert len(bot.account.get_chatlist()) == 2
+    bot_chats = len(bot.account.get_chatlist())
     bot_contact = group.get_contacts()[0]
     group.remove_contact(bot_contact)
 
@@ -116,7 +116,7 @@ def test_bot_removed(bot, group, joiner, log):
     log.step("Bot gets removed")
     bot.run_until(contacts_removed)
     assert bot.account.get_contacts()[0] == extra_contacts[0]
-    assert len(bot.account.get_chatlist()) == 1
+    assert len(bot.account.get_chatlist()) == bot_chats - 1
     assert bot_extra_group.get_full_snapshot().self_in_group
 
 

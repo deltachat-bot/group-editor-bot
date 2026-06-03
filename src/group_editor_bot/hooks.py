@@ -69,6 +69,9 @@ def catch_events(event):
         if event.progress == 1000:
             resend_messages(event.account.get_chat_by_id(event.chat_id))
     if event.kind == EventType.IMAP_CONNECTED:
+        avatar_path = str(importlib.resources.files(__package__) / "avatar.jpg")
+        event.account.set_avatar(avatar_path)
+        event.account.set_config("displayname", "Group Editor Bot")
         event.account.set_config("selfstatus", HELP_MSG)
         event.account.set_config("delete_server_after", "1")
         print(
